@@ -2,7 +2,6 @@
 
 namespace App\Http\Services;
 
-use App\Http\Repositories\Click108Repository;
 use PHPHtmlParser\Dom;
 
 class click108 extends BaseService
