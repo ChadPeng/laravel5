@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Repositories;
 
 class BaseRepository
@@ -12,37 +11,46 @@ class BaseRepository
      * @param array $data
      * @return mixed
      */
-    function add(array $data)
+    public function add(array $data)
     {
         $model = $this->model->newInstance();
-        foreach ($data as $cloumn => $value) {
-            $model->$cloumn = $value;
+        foreach ($data as $column => $value) {
+            $model->$column = $value;
         }
         $model->save();
         return $model;
     }
 
-    function find($id)
+    public function single_add($column , $value)
+    {
+        $model = $this->model->newInstance();
+        $model->$column = $value;
+        $model->save();
+
+        return $model;
+    }
+
+    public function find($id)
     {
         return $this->model->find($id);
     }
 
-    function get()
+    public function get()
     {
         return $this->model->get();
     }
 
-    function update($id,$data)
+    public function update($id,$data)
     {
         $gift = $this->model->find($id);
-        foreach ($data as $cloumn => $value) {
-            $gift->$cloumn = $value;
+        foreach ($data as $column => $value) {
+            $gift->$column = $value;
         }
 
         return $gift->save();
     }
 
-    function delete($id){
+    public function delete($id){
         return $this->model->find($id)->delete();
     }
 

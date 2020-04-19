@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Log;
 
 class click108Cron extends Command
 {
@@ -44,7 +45,8 @@ class click108Cron extends Command
      */
     public function handle()
     {
-        $initArray = [0 => 'all' , 1 => 'love' , 2 => 'career' , 3 => 'fortune'];
+        $initArray = $this->click108Service->getType();
+
         $getResponse = $this->click108Service->getHTMLResponse() ;
 
         //獲得12星座URL
@@ -56,21 +58,29 @@ class click108Cron extends Command
         $result = [];
 
         //ETL 12 星座
+        //key = 星座ID
+        //keyName = 運勢ID
         foreach ($details as $key => $detail){
             $tmp = $detail->find('p');
-            $i = 0;
+            $i = 1;
             foreach ($tmp as $k => $value){
                 $mod = $k % 2;
-                $keyName = $initArray[$i];
+                $keyName = $initArray->get($i)->id;
                 if ($mod === 0){
                     $title = $this->click108Service->getTitle($value->innerHtml);
                     $result[$key][$keyName]['title'] = $title;
-                    $result[$key][$keyName]['start'] = substr_count($title , '★');
+                    $result[$key][$keyName]['star'] = substr_count($title , '★');
                 }else{
                     $result[$key][$keyName]['info'] = $this->click108Service->getInfo($value->text());
                     $i++;
                 }
             }
+        }
+
+        $insertData = $this->click108Service->createClick108($result);
+
+        if (!$insertData){
+            Log::error("Insert data error");
         }
 
         return;

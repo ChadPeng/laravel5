@@ -5,10 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\User;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
-//use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
-use Request;
-use Auth;
 
 class LoginController extends Controller
 {
@@ -65,7 +62,7 @@ class LoginController extends Controller
                 ];
 
                 User::create($userCreate);
-//                Auth::user();
+
                 if ($this->attemptLogin($request)) {
                     return $this->sendLoginResponse($request);
                 }

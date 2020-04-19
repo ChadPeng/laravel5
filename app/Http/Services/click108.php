@@ -2,20 +2,23 @@
 
 namespace App\Http\Services;
 
+use App\Http\Repositories\Click108Repository;
 use PHPHtmlParser\Dom;
 
 class click108 extends BaseService
 {
     public $url;
     private $dom;
+    private $repository;
 
     const mainClass = '.STAR12_BOX';
     const todayClass = '.TODAY_CONTENT';
 
-    public function __construct()
+    function __construct()
     {
         $this->url = env('CLICK108_URL' , 'http://astro.click108.com.tw/');
         $this->dom = new Dom;
+        $this->repository = app('click108Repository');
     }
 
     public function getHTMLResponse($url = ""){
@@ -32,16 +35,19 @@ class click108 extends BaseService
     }
 
     public function getMultipleDetails($multipleURLs){
+        $name = $this->getName();
         $detail = [];
         foreach ($multipleURLs as $multipleURL){
             //取得URL獲得每個星座的詳細資訊
             $split = explode('RedirectTo=' , $multipleURL->getAttribute('href'));
             $title = $multipleURL->getAttribute('title');
+            $titleKey = $name->get($title);
             $detailURL = $this->getHTMLResponse(urldecode($split[1]));
             $detailURL = trim($detailURL, "\xEF\xBB\xBF");
             $this->dom->load(mb_convert_encoding($detailURL,'HTML-ENTITIES','utf-8'));
 
-            $detail[$title] = $this->dom->find(self::todayClass , 0); ;
+            $id = ($titleKey) ? $titleKey->id : '0';
+            $detail[$id] = $this->dom->find(self::todayClass , 0); ;
         }
         return $detail;
     }
@@ -53,5 +59,21 @@ class click108 extends BaseService
     public function getTitle($text){
         $tmp = $this->dom->load($text);
         return str_replace("：","",mb_convert_encoding($tmp->find('span' , 0)->text(),'utf-8' , 'HTML-ENTITIES'));
+    }
+
+    public function addMainData(){
+        return $this->repository->addMainData();
+    }
+
+    public function getType(){
+        return $this->repository->getType();
+    }
+
+    public function getName(){
+        return $this->repository->getName();
+    }
+
+    public function createClick108($result){
+        return $this->repository->createClick108($result);
     }
 }
